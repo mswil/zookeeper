@@ -1,3 +1,5 @@
+// Dependencies
+// ===========================================================
 const { animals } = require('./data/animals');
 
 const fs = require('fs');
@@ -12,6 +14,10 @@ app.use(express.urlencoded({ extended: true }));
 // parse incoming JSON data
 app.use(express.json());
 
+app.use(express.static('public'));
+
+// Logic
+// ===========================================================
 function filterByQuery(query, animalsArray) {
     let personalityTraitsArray = [];
     let filteredResults = animalsArray;
@@ -77,6 +83,8 @@ function validateAnimal(animal) {
     return true;
 }
 
+// Routes
+// ===========================================================
 app.get('/api/animals', (req, res) => {
     let results = animals;
     if (req.query) {
@@ -102,13 +110,33 @@ app.post('/api/animals', (req, res) => {
     // if any data in req.body is incorrect, send 400 error back
     if (!validateAnimal(req.body)) {
         res.status(400).send('The animal is not properly formatted.');
-    } 
+    }
     else {
         const animal = createNewAnimal(req.body, animals);
         res.json(animal);
     }
 });
 
+// HTML
+// ===========================================================
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+app.get('/animals', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
+app.get('/zookeepers', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+// Listener
+// ===========================================================
 app.listen(PORT, () => {
     console.log(`API server now on port 3001!`);
 });
